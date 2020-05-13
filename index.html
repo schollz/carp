@@ -11,6 +11,10 @@
     margin: 0;
 }
 
+body {
+    background: #0077b6;
+    color:white;
+}
 
 
 .mw30 {
@@ -89,14 +93,17 @@ padding-right: 0.5em;
 }
 
 .error {
-    color:#FF4136;
+    color:#FFDAB9;
 }
 
 .success {
-    color: #2ECC40;
+    color: #98FB98;
 }
 .pt1 {
     padding-top: 1em;
+}
+.pt05 {
+    padding-top: 0.5em;
 }
 
  dl {
@@ -107,7 +114,7 @@ padding-right: 0.5em;
     clear: left;
     text-align: right;
     font-weight: bold;
-    color: green;
+    color: #20B2AA;
     padding-left: 1em;
   }
   dt::after {
@@ -125,6 +132,22 @@ padding-right: 0.5em;
 .link {
     cursor: pointer;
     text-decoration: underline;
+}
+
+
+input,button {
+     background: #0077b6;
+     border: 1px solid white;
+  border-radius: 4px;
+  color:white;
+  padding: 0.5em;
+}
+button {
+    cursor: pointer;
+}
+button:hover {
+  background-color: white; /* Green */
+  color: #0077b6;
 }
 </style>
 </head>
@@ -195,7 +218,10 @@ padding-right: 0.5em;
             <br>
             <div>
                 <p>
-                    carp is a sequencer for <em>chord arpeggios</em> (carp). enter the chords you want with the arp you want inside parentheses, e.g. <em>Bbmin(ud)</em>. hit "start" and it will play the corresponding chord and corresponding arp using sysex commands.
+                    carp is a sequencer for <em>chord arpeggios</em> (carp). enter the chords you want with the arp you want inside parentheses. for example, a Bb minor chord with up-down arpeggio would be <em>Bbmin(ud)</em>.
+                </p>
+                <p class="pt05">
+                    press "start" and it will play the corresponding chord and corresponding arp using sysex commands until "stop" is pressed
                 </p>
             </div>
             <br>
@@ -273,7 +299,7 @@ padding-right: 0.5em;
                     <strong>examples:</strong>
                     <dl>
                         <dt>four chord song</dt>
-                        <dd class="link" v-on:click="loadchord">C(u) Am(d) F(u) G(d)</dd>
+                        <dd class="link"><a href="/?load=1#eyJpIjoiQyh1KSBBbShkKSBGKHUpIEcoZCkiLCJiIjo2MCwibyI6NCwiYSI6IjUwIiwiYyI6NH0=">C(u) Am(d) F(u) G(d)</a></dd>
                     </dl>
                 </p>
             </div>
@@ -307,6 +333,16 @@ padding-right: 0.5em;
         },
         created: function() {
             try {
+                var data = JSON.parse(atob(window.location.hash.substr(1)));
+                this.inputChords = data.i;
+                this.bpm = data.b;
+                this.beats_per_chord = data.c;
+                this.midi_octave = data.o;
+                this.arp_length = data.a;
+                console.log("loaded data");
+            } catch (e) {}
+            try {
+
                 WebMidi.enable(err => {
                     if (err) {
                         console.log("MIDI could not be enabled.", err);
@@ -398,7 +434,7 @@ padding-right: 0.5em;
             chords: function() {
                 console.log("starting")
                 console.log(this.inputChords);
-                window.location.hash = this.inputChords.split(" ").join("-");
+                window.location.hash = btoa(JSON.stringify({ i: this.inputChords, b: this.bpm, o: this.midi_octave, a: this.arp_length, c: this.beats_per_chord }))
                 var chordNames = this.inputChords.split(" ");
                 chords = [];
                 for (var i = 0; i < chordNames.length; i++) {
