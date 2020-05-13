@@ -19,7 +19,7 @@ body {
 
 .mw30 {
   width: 80%;
-  max-width: 30em;
+  max-width: 40em;
   margin: auto;
   border: 0 none;
 }
@@ -75,7 +75,7 @@ input[type="checkbox"] ~ label, input[type="radio"] ~ label {
 
 /* label state styles */
 input:focus ~ label, textarea:focus ~ label, select:focus ~ label {
-  color: #933;
+  color: #FAFAD2;
 }
 
 input:checked ~ label {
@@ -149,6 +149,19 @@ button:hover {
   background-color: white; /* Green */
   color: #0077b6;
 }
+input:focus {
+  background-color: white; /* Green */
+  color: #0077b6;
+}
+a {
+  color: white;  
+}
+a:hover{
+     color: #FAFAD2;
+}
+dd, dt {
+    font-size: 80%;
+}
 </style>
 </head>
 
@@ -183,8 +196,8 @@ button:hover {
                 <label for="name">arp length:</label>
             </div>
             <div>
-                <button class="button" v-on:click="start">Start</button>
-                <button class="button" v-on:click="stop">Stop</button>
+                <button class="button" v-on:click="start" style="margin-right: 0.25em;">Start</button>
+                <button class="button" v-on:click="stop" style="margin-left: 0.25em;">Stop</button>
                 <label for="name">init:</label>
             </div>
             <!--             <div>
@@ -218,91 +231,94 @@ button:hover {
             <br>
             <div>
                 <p>
-                    carp is a sequencer for <em>chord arpeggios</em> (carp). enter the chords you want with the arp you want inside parentheses. for example, a Bb minor chord with up-down arpeggio would be <em>Bbmin(ud)</em>.
+                    carp is a sequencer for <em>chord arpeggios</em> on the korg nts-1. enter the chords you want with the arp you want inside parentheses. for example, a Bb minor chord with up-down arpeggio would be <em>Bbmin(ud)</em>.
                 </p>
                 <p class="pt05">
-                    press "start" and it will play the corresponding chord and corresponding arp using sysex commands until "stop" is pressed
+                    press "start" and it will play the corresponding chord and corresponding arp using sysex commands until "stop" is pressed.
                 </p>
             </div>
             <br>
-            <div class="pt1" style="font-size:80%">
-                <p> <strong>allowed chords:</strong>
-                    <dl>
-                        <dt>maj (or nothing)</dt>
-                        <dd>major</dd>
-                    </dl>
-                    <dl>
-                        <dt>min (or m)</dt>
-                        <dd>minor</dd>
-                    </dl>
-                    <dl>
-                        <dt>sus</dt>
-                        <dd>sustained</dd>
-                    </dl>
-                    <dl>
-                        <dt>aug</dt>
-                        <dd>augmented</dd>
-                    </dl>
-                    <dl>
-                        <dt>dim</dt>
-                        <dd>diminished</dd>
-                    </dl>
-                </p>
-            </div>
-            <div class="pt1" style="font-size:80%">
-                <p>
-                    <strong>allowed arps:</strong>
-                    <dl>
-                        <dt>u</dt>
-                        <dd>up</dd>
-                    </dl>
-                    <dl>
-                        <dt>d</dt>
-                        <dd>down</dd>
-                    </dl>
-                    <dl>
-                        <dt>ud</dt>
-                        <dd>up-down</dd>
-                    </dl>
-                    <dl>
-                        <dt>du</dt>
-                        <dd>down-up</dd>
-                    </dl>
-                    <dl>
-                        <dt>c</dt>
-                        <dd>converge</dd>
-                    </dl>
-                    <dl>
-                        <dt>v</dt>
-                        <dd>diverge</dd>
-                    </dl>
-                    <dl>
-                        <dt>cv</dt>
-                        <dd>converge-diverge</dd>
-                    </dl>
-                    <dl>
-                        <dt>vc</dt>
-                        <dd>diverge-converge</dd>
-                    </dl>
-                    <dl>
-                        <dt>r</dt>
-                        <dd>random</dd>
-                    </dl>
-                    <dl>
-                        <dt>s</dt>
-                        <dd>stochastic</dd>
-                    </dl>
-                </p>
-            </div>
-            <div class="pt1">
-                <p>
-                    <strong>examples:</strong>
-                    <dl>
-                        <dt>four chord song</dt>
-                        <dd class="link"><a href="/?load=1#eyJpIjoiQyh1KSBBbShkKSBGKHUpIEcoZCkiLCJiIjo2MCwibyI6NCwiYSI6IjUwIiwiYyI6NH0=">C(u) Am(d) F(u) G(d)</a></dd>
-                    </dl>
-                </p>
-            </div>
+            <table width="100%">
+                <tr>
+                    <td width="50%" style=" vertical-align:top">
+                        <p>
+                            <strong>allowed chords:</strong>
+                            <dl>
+                                <dt>maj (or nothing)</dt>
+                                <dd>major</dd>
+                            </dl>
+                            <dl>
+                                <dt>min (or m)</dt>
+                                <dd>minor</dd>
+                            </dl>
+                            <dl>
+                                <dt>sus</dt>
+                                <dd>sustained</dd>
+                            </dl>
+                            <dl>
+                                <dt>aug</dt>
+                                <dd>augmented</dd>
+                            </dl>
+                            <dl>
+                                <dt>dim</dt>
+                                <dd>diminished</dd>
+                            </dl>
+                        </p>
+                        <p class="pt1">
+                            <strong>examples:</strong>
+                            <dl>
+                                <dt>four chord song</dt>
+                                <dd class="link"><a v-bind:href="'/?load='+Math.floor(1000*Math.random())+'#eyJpIjoiQyh1KSBBbShkKSBGKHUpIEcoZCkiLCJiIjo2MCwibyI6NCwiYSI6IjUwIiwiYyI6NH0='">C(u) Am(d) F(u) G(d)</a></dd>
+                            </dl>
+                        </p>
+                    </td>
+                    <td width="50%" style=" vertical-align:top">
+                        <p>
+                            <strong>allowed arps:</strong>
+                            <dl>
+                                <dt>u</dt>
+                                <dd>up</dd>
+                            </dl>
+                            <dl>
+                                <dt>d</dt>
+                                <dd>down</dd>
+                            </dl>
+                            <dl>
+                                <dt>ud</dt>
+                                <dd>up-down</dd>
+                            </dl>
+                            <dl>
+                                <dt>du</dt>
+                                <dd>down-up</dd>
+                            </dl>
+                            <dl>
+                                <dt>c</dt>
+                                <dd>converge</dd>
+                            </dl>
+                            <dl>
+                                <dt>v</dt>
+                                <dd>diverge</dd>
+                            </dl>
+                            <dl>
+                                <dt>cv</dt>
+                                <dd>converge-diverge</dd>
+                            </dl>
+                            <dl>
+                                <dt>vc</dt>
+                                <dd>diverge-converge</dd>
+                            </dl>
+                            <dl>
+                                <dt>r</dt>
+                                <dd>random</dd>
+                            </dl>
+                            <dl>
+                                <dt>s</dt>
+                                <dd>stochastic</dd>
+                            </dl>
+                        </p>
+                    </td>
+                </tr>
+            </table>
             <div class="pt1" style="text-align: right;">
                 <small>Made by <a href="https://github.com/schollz/carp">@schollz</a> under MIT.</small>
             </div>
@@ -437,16 +453,24 @@ button:hover {
                 window.location.hash = btoa(JSON.stringify({ i: this.inputChords, b: this.bpm, o: this.midi_octave, a: this.arp_length, c: this.beats_per_chord }))
                 var chordNames = this.inputChords.split(" ");
                 chords = [];
+                this.message_success = "";
                 for (var i = 0; i < chordNames.length; i++) {
                     console.log(chordNames[i]);
                     var foo = chordNames[i].split("(")
                     var chordName = foo[0];
+                    chordName = chordName[0].toUpperCase() +
+                        chordName.slice(1)
                     var arp = "";
                     if (foo.length > 1) {
                         arp = foo[1].split(")")[0]
                     }
 
                     var cParsed = chordMagic.parse(chordName);
+                    if (cParsed == null) {
+                        this.message_error = "Could not parse '" + chordName + "'.";
+                        continue
+                    }
+                    this.message_success += chordName + " ";
                     var notes_sysex = 0;
                     if (cParsed.quality == "Major") {
                         // major chord
