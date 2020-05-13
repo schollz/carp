@@ -1,0 +1,464 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>carp | nts-1 sequencer</title>
+    <style>
+        /* some basic styling to make things pretty */
+*, *:before, *:after {
+  box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+
+
+.mw30 {
+  width: 80%;
+  max-width: 30em;
+  margin: auto;
+  border: 0 none;
+}
+
+legend {
+  font-size: 1.2em;
+  width: 100%;
+  border-bottom: 1px dotted #99c;
+}
+
+fieldset div {
+  margin: 4px 0;
+}
+
+input, textarea, select {
+  font-size: 1em;
+  padding: 2px 5px 4px;
+}
+
+/* flexbox styles */
+fieldset div {
+  display: flex;
+  align-items: center;
+}
+
+label {
+  order: 1;
+  width: 10em;
+  text-align: right;
+  padding-right: 0.5em;
+    white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+}
+
+div,button,input, textarea, select {
+  order: 2;
+  flex: 1 1 auto;
+}
+
+input[type="checkbox"], input[type="radio"] {
+  order: 1;
+  flex: none;
+  width: auto;
+  margin-left: 10em;
+}
+
+input[type="checkbox"] ~ label, input[type="radio"] ~ label {
+  width: auto;
+  text-align: left;
+  padding-left: 0.4em;
+}
+
+/* label state styles */
+input:focus ~ label, textarea:focus ~ label, select:focus ~ label {
+  color: #933;
+}
+
+input:checked ~ label {
+  font-weight: bold;
+}
+
+#app {
+    padding-top: 3em;
+padding-left: 0.5em;
+padding-right: 0.5em;
+}
+.button {
+    width:8em;
+    padding:0.5em;
+}
+
+.error {
+    color:#FF4136;
+}
+
+.success {
+    color: #2ECC40;
+}
+.pt1 {
+    padding-top: 1em;
+}
+
+ dl {
+    padding: 0.1em;
+  }
+  dt {
+    float: left;
+    clear: left;
+    text-align: right;
+    font-weight: bold;
+    color: green;
+    padding-left: 1em;
+  }
+  dt::after {
+    content: ":";
+    padding-right: 0.5em;
+  }
+  dd {
+  }
+
+
+  input, button, body, p {
+  font-family: "Lucida Console", Monaco, monospace
+}
+
+.link {
+    cursor: pointer;
+    text-decoration: underline;
+}
+</style>
+</head>
+
+<body style="">
+    <div id="app">
+        <fieldset class="mw30">
+            <legend>
+                <pre style="float:right; text-align: right;">
+      _///_  
+     /o    \/
+     > ))_./\
+        <    </pre><span style="font-size:1.5em">carp | nts-1 sequencer</span>
+            </legend>
+            <div>
+                <input id="inputChords" name="inputChords" type="text" v-model="inputChords" />
+                <label for="name">chords</label>
+            </div>
+            <div>
+                <input type="number" id="fname" name="fname" v-model="bpm">
+                <label for="name">bpm:</label>
+            </div>
+            <div>
+                <input type="number" id="fname" name="fname" v-model="beats_per_chord">
+                <label for="name">beats per chord:</label>
+            </div>
+            <div>
+                <input type="number" id="fname" name="fname" v-model="midi_octave">
+                <label for="name">octave:</label>
+            </div>
+            <div>
+                <input type="number" id="fname" name="fname" v-model="arp_length" v-on:change="update_arp_length">
+                <label for="name">arp length:</label>
+            </div>
+            <div>
+                <button class="button" v-on:click="start">Start</button>
+                <button class="button" v-on:click="stop">Stop</button>
+                <label for="name">init:</label>
+            </div>
+            <!--             <div>
+                <select id="experience" name="experience">
+                    <option value="1">1 year or less</option>
+                    <option value="2">2 years</option>
+                    <option value="3">3 - 4 years</option>
+                    <option value="5">5 years or more</option>
+                </select>
+                <label for="experience">exper jkl jlkj lkj lkj lkj lkj lkj lkj ience</label>
+            </div> -->
+            <!--             <div>
+                <input id="html" name="html" type="checkbox" />
+                <label for="html">checkbox</label>
+            </div>
+ -->
+        </fieldset>
+        <div class="mw30">
+            <br>
+            <div style="text-align: center;" v-if="beat">
+                <p>{{ beat }} {{chord_current}}</p>
+            </div>
+            <div style="text-align: center;">
+                <p v-if="message_success" class="success">
+                    {{ message_success }}
+                </p>
+                <p v-if="message_error" class="error">
+                    {{ message_error }}
+                </p>
+            </div>
+            <br>
+            <div>
+                <p>
+                    carp is a sequencer for <em>chord arpeggios</em> (carp). enter the chords you want with the arp you want inside parentheses, e.g. <em>Bbmin(ud)</em>. hit "start" and it will play the corresponding chord and corresponding arp using sysex commands.
+                </p>
+            </div>
+            <br>
+            <div class="pt1" style="font-size:80%">
+                <p> <strong>allowed chords:</strong>
+                    <dl>
+                        <dt>maj (or nothing)</dt>
+                        <dd>major</dd>
+                    </dl>
+                    <dl>
+                        <dt>min (or m)</dt>
+                        <dd>minor</dd>
+                    </dl>
+                    <dl>
+                        <dt>sus</dt>
+                        <dd>sustained</dd>
+                    </dl>
+                    <dl>
+                        <dt>aug</dt>
+                        <dd>augmented</dd>
+                    </dl>
+                    <dl>
+                        <dt>dim</dt>
+                        <dd>diminished</dd>
+                    </dl>
+                </p>
+            </div>
+            <div class="pt1" style="font-size:80%">
+                <p>
+                    <strong>allowed arps:</strong>
+                    <dl>
+                        <dt>u</dt>
+                        <dd>up</dd>
+                    </dl>
+                    <dl>
+                        <dt>d</dt>
+                        <dd>down</dd>
+                    </dl>
+                    <dl>
+                        <dt>ud</dt>
+                        <dd>up-down</dd>
+                    </dl>
+                    <dl>
+                        <dt>du</dt>
+                        <dd>down-up</dd>
+                    </dl>
+                    <dl>
+                        <dt>c</dt>
+                        <dd>converge</dd>
+                    </dl>
+                    <dl>
+                        <dt>v</dt>
+                        <dd>diverge</dd>
+                    </dl>
+                    <dl>
+                        <dt>cv</dt>
+                        <dd>converge-diverge</dd>
+                    </dl>
+                    <dl>
+                        <dt>vc</dt>
+                        <dd>diverge-converge</dd>
+                    </dl>
+                    <dl>
+                        <dt>r</dt>
+                        <dd>random</dd>
+                    </dl>
+                    <dl>
+                        <dt>s</dt>
+                        <dd>stochastic</dd>
+                    </dl>
+                </p>
+            </div>
+            <div class="pt1">
+                <p>
+                    <strong>examples:</strong>
+                    <dl>
+                        <dt>four chord song</dt>
+                        <dd class="link" v-on:click="loadchord">C(u) Am(d) F(u) G(d)</dd>
+                    </dl>
+                </p>
+            </div>
+            <div class="pt1" style="text-align: right;">
+                <small>Made by <a href="https://github.com/schollz/carp">@schollz</a> under MIT.</small>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/chord-magic.min.js"></script>
+    <script src="/static/js/vue.js"></script>
+    <script src="/static/js/tonal.min.js"></script>
+    <script src="/static/js/webmidi.js"></script>
+    <script>
+    app = new Vue({
+        el: '#app',
+        data: {
+            ntsout: null,
+            ntsin: null,
+            message_error: "",
+            message_success: "",
+            inputChords: "C(u) Am(d) Ddim F",
+            bpm: 60,
+            bpm_current: 60,
+            beat: 0,
+            metronome: null,
+            metronome_expected: Date.now(),
+            beats_per_chord: 4,
+            chord_current: {},
+            midi_octave: 4,
+            arp_length: 1,
+        },
+        created: function() {
+            try {
+                WebMidi.enable(err => {
+                    if (err) {
+                        console.log("MIDI could not be enabled.", err);
+                        this.message_error = "MIDI not supported. Try using Chrome or Opera."
+                    } else {
+                        console.log("WebMIDI enabled.");
+                        var outputs = WebMidi.outputs;
+                        var inputs = WebMidi.inputs;
+                        var found = false;
+                        for (var i = 0; i < inputs.length; i++) {
+                            if (inputs[i].name.includes("NTS-1")) {
+                                this.ntsin = inputs[i];
+                                this.ntsout = outputs[i];
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) {
+                            console.log("found NTS-1");
+                            this.message_success = "NTS-1 loaded."
+                        } else {
+                            this.message_success = "MIDI enabled."
+                            this.message_error = "NTS-1 not found.";
+                        }
+                    }
+                });
+            } catch (e) {
+                console.log(e);
+            }
+
+        },
+        methods: {
+            loadchord: function(e) {
+                this.inputChords = e.srcElement.innerText;
+                window.scrollTo(0, 0);
+            },
+            update_arp_length: function(e) {
+                if (this.arp_length > 127) {
+                    this.arp_length = 127;
+                } else if (this.arp_length < 1) {
+                    this.arp_length = 1;
+                }
+                if (this.ntsout == null) {
+                    return;
+                }
+                this.ntsout.sendControlChange(119, this.arp_length, "all");
+            },
+            start: function(event) {
+                this.stop();
+                this.bpm_current = this.bpm;
+                this.step();
+            },
+            stop: function(event) {
+                clearTimeout(this.metronome);
+                this.metronome_expected = Date.now();
+                this.beat = 0;
+            },
+            step: function(e) {
+                var dt = Date.now() - this.metronome_expected; // the drift (positive for overshooting)
+                console.log(dt);
+                if (dt > this.bpminterval) {
+                    // something really bad happened. Maybe the browser (tab) was inactive?
+                    // possibly special handling to avoid futile "catch up" run
+                }
+                this.beat++;
+                console.log("beep!");
+                var chordi = Math.floor((this.beat - 1) / this.beats_per_chord) % this.chords.length;
+                console.log(chordi);
+                if (this.chord_current.name != this.chords[chordi].name) {
+                    console.log("updating chord!")
+                    this.chord_current = this.chords[chordi];
+                    if (this.ntsout != null) {
+                        // change note, play it for 1/2 beat
+                        this.ntsout.playNote(this.chord_current.root, { duration: this.bpminterval * 0.5 })
+                        // change chord
+                        this.ntsout.sendControlChange(118, this.chord_current.sysex_note, "all");
+                        // change arp type
+                        this.ntsout.sendControlChange(117, this.chord_current.sysex_arp, "all");
+                    }
+                }
+                this.metronome_expected += this.bpminterval;
+                this.metronome = setTimeout(this.step, Math.max(0, this.bpminterval - dt)); // take into account drift  
+            }
+        },
+        computed: {
+            bpminterval: function() {
+                return 60 / this.bpm_current * 1000;
+            },
+            chords: function() {
+                console.log("starting")
+                console.log(this.inputChords);
+                window.location.hash = this.inputChords.split(" ").join("-");
+                var chordNames = this.inputChords.split(" ");
+                chords = [];
+                for (var i = 0; i < chordNames.length; i++) {
+                    console.log(chordNames[i]);
+                    var foo = chordNames[i].split("(")
+                    var chordName = foo[0];
+                    var arp = "";
+                    if (foo.length > 1) {
+                        arp = foo[1].split(")")[0]
+                    }
+
+                    var cParsed = chordMagic.parse(chordName);
+                    var notes_sysex = 0;
+                    if (cParsed.quality == "Major") {
+                        // major chord
+                        notes_sysex = 25;
+                    } else if (cParsed.hasOwnProperty("suspended")) {
+                        notes_sysex = 50;
+                    } else if (cParsed.quality == "Augmented") {
+                        notes_sysex = 75;
+                    } else if (cParsed.quality == "Minor") {
+                        notes_sysex = 100;
+                    } else if (cParsed.quality == "Diminished") {
+                        notes_sysex = 127;
+                    } else {
+                        // octave
+                        notes_sysex = 0;
+                    }
+                    if (arp == "") {
+                        arp = "u";
+                    }
+                    var arp_sysex = 0;
+                    if (arp == "u") {
+                        arp_sysex = 0;
+                    } else if (arp == "d") {
+                        arp_sysex = 14;
+                    } else if (arp == "ud") {
+                        arp_sysex = 28;
+                    } else if (arp == "du") {
+                        arp_sysex = 42;
+                    } else if (arp == "c") {
+                        arp_sysex = 56;
+                    } else if (arp == "v") {
+                        arp_sysex = 70;
+                    } else if (arp == "cv") {
+                        arp_sysex = 84;
+                    } else if (arp == "vc") {
+                        arp_sysex = 98;
+                    } else if (arp == "r") {
+                        arp_sysex = 112;
+                    } else if (arp == "s") {
+                        arp_sysex = 127;
+                    }
+                    chords.push({ "name": chordName, "arp": arp, "sysex_arp": arp_sysex, "sysex_note": notes_sysex, "midi": Tonal.Note.midi(cParsed.root + this.midi_octave), "root": cParsed.root + this.midi_octave, "parsed": cParsed })
+                }
+                return chords
+            }
+        }
+    });
+    </script>
+</body>
+
+</html>
