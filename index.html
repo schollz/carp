@@ -214,6 +214,10 @@
 	border-radius: 8px;
 	padding: 0.5em;
 }
+
+.beatnum {
+	padding-right: 1em;
+}
 </style>
 </head>
 
@@ -270,7 +274,7 @@
         <div class="mw30">
             <br>
             <div style="text-align: center;" v-if="beat">
-                <p style="font-size:150%;">{{ (beat-1) % 4+1 }}</p>
+                <p style="font-size:150%;" v-html=visualmetronome></p>
             </div>
             <div style="text-align: center;">
                 <p v-html="chordHTML"></p>
@@ -414,6 +418,7 @@
             chord_current: {},
             midi_octave: 4,
             arp_length: 1,
+            chordi: 0,
         },
         created: function() {
             try {
@@ -475,6 +480,7 @@
             start: function(event) {
                 this.stop();
                 this.bpm_current = this.bpm;
+                this.chordi = -1;
                 this.step();
             },
             stop: function(event) {
@@ -489,9 +495,13 @@
                     // possibly special handling to avoid futile "catch up" run
                 }
                 this.beat++;
-                var chordi = Math.floor((this.beat - 1) / this.beats_per_chord) % this.chords.length;
-                if (this.chord_current.name != this.chords[chordi].name) {
-                    this.chord_current = this.chords[chordi];
+                var nextChord = Math.floor((this.beat - 1) % this.beats_per_chord);
+                console.log(`${this.beat} ${nextChord}`)
+                if (nextChord == 0) {
+                    this.chordi = (this.chordi + 1) % this.chords.length;
+                }
+                if (this.chord_current.name != this.chords[this.chordi].name) {
+                    this.chord_current = this.chords[this.chordi];
                     if (this.ntsout != null) {
                         // change note, play it for 1/2 beat
                         this.ntsout.playNote(this.chord_current.root, "all", { duration: this.bpminterval * 0.1 })
@@ -506,17 +516,30 @@
             }
         },
         computed: {
+            visualmetronome: function() {
+                var curbeat = (this.beat - 1) % 4 + 1;
+                html = `<span class="beatnum">${curbeat}</span>`;
+                for (var i = 1; i <= 4; i++) {
+                    if (i == curbeat) {
+                        html += "o ";
+                    } else {
+                        html += ". ";
+                    }
+                }
+
+                return html;
+            },
             bpminterval: function() {
                 return 60 / this.bpm_current * 1000;
             },
             chordHTML: function() {
                 var chtml = "";
                 for (i = 0; i < this.chords.length; i++) {
-                    if (this.chords[i].name == this.chord_current.name) {
+                    if (i == this.chordi) {
                         chtml += "<span class='current'>"
                     }
                     chtml += this.chords[i].name + " ";
-                    if (this.chords[i].name == this.chord_current.name) {
+                    if (i == this.chordi) {
                         chtml += "</span>"
                     }
                 }
