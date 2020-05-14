@@ -133,6 +133,16 @@
       padding-left: 1em;
   }
 
+  li > a {
+  	color: #20B2AA;
+  	font-size: 80%;
+  	padding-left: 1em;
+  }
+
+  ul {
+  	 list-style-type: none;
+  }
+
   dt::after {
       content: ":";
       padding-right: 0.5em;
@@ -260,8 +270,17 @@
                 <p>
                     carp is a sequencer for <em>chord arpeggios</em> on the korg nts-1. enter the chords you want with the arp you want inside parentheses. for example, a Bb minor chord with up-down arpeggio would be <em>Bbmin(ud)</em>.
                 </p>
+                <p class="pt1">
+                    <strong>instructions:</strong>
+                </p>
                 <p class="pt05">
-                    press "start" and it will play the corresponding chord and corresponding arp using sysex commands until "stop" is pressed.
+                    first set the tempo. on device, hold "arp" and adjust "b". now, on carp set "bpm" to the corresponding tempo (or 2x that).
+                </p>
+                <p class="pt05">
+                    set the nts-1 into hold mode by holding down "arp" until it starts blinking.
+                </p>
+                <p class="pt05">
+                    enter chords into carp and press "start". it will play the corresponding chord and corresponding arp using sysex commands until "stop" is pressed.
                 </p>
             </div>
             <br>
@@ -293,10 +312,12 @@
                         </p>
                         <p class="pt1">
                             <strong>examples:</strong>
-                            <dl>
-                                <dt>four chord song</dt>
-                                <dd class="link"><a v-bind:href="'/?load='+Math.floor(1000*Math.random())+'#eyJpIjoiQyh1KSBBbShkKSBGKHUpIEcoZCkiLCJiIjo2MCwibyI6NCwiYSI6IjUwIiwiYyI6NH0='">C(u) Am(d) F(u) G(d)</a></dd>
-                            </dl>
+                            <ul>
+                                <li>
+                                    <a v-bind:href="'/?load='+Math.floor(1000*Math.random())+'#eyJpIjoiQyh1ZCkgRW0odWQpIEYodWQpIEFtKHVkKSIsImIiOiIxMjAiLCJvIjoiNCIsImEiOiIyNyIsImMiOjR9='">four chord song
+                                    </a>
+                                </li>
+                            </ul>
                         </p>
                     </td>
                     <td width="50%" style=" vertical-align:top">
@@ -356,6 +377,7 @@
     <script src="./static/js/tonal.min.js"></script>
     <script src="./static/js/webmidi.js"></script>
     <script>
+    var ntsout;
     app = new Vue({
         el: '#app',
         data: {
@@ -457,7 +479,7 @@
                     this.chord_current = this.chords[chordi];
                     if (this.ntsout != null) {
                         // change note, play it for 1/2 beat
-                        this.ntsout.playNote(this.chord_current.root, { duration: this.bpminterval * 0.5 })
+                        this.ntsout.playNote(this.chord_current.root, "all", { duration: this.bpminterval * 0.1 })
                         // change chord
                         this.ntsout.sendControlChange(118, this.chord_current.sysex_note, "all");
                         // change arp type
@@ -483,6 +505,9 @@
                     console.log(chordNames[i]);
                     var foo = chordNames[i].split("(")
                     var chordName = foo[0];
+                    if (chordName[0] == undefined) {
+                        continue
+                    }
                     chordName = chordName[0].toUpperCase() +
                         chordName.slice(1)
                     var arp = "";
