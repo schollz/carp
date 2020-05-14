@@ -16,6 +16,8 @@
   body {
       background: #0077b6;
       color: white;
+      padding-top: 1em;
+      padding-bottom: 2em;
   }
 
   .mw30 {
@@ -205,6 +207,13 @@
   dt {
       font-size: 80%;
   }   
+
+  .video {
+	margin: 0 auto;
+	border: 5px outset #ddd;
+	border-radius: 8px;
+	padding: 0.5em;
+}
 </style>
 </head>
 
@@ -261,10 +270,10 @@
         <div class="mw30">
             <br>
             <div style="text-align: center;" v-if="beat">
-		    <p style="font-size:150%;">{{ (beat-1) % 4+1 }}</p>
+                <p style="font-size:150%;">{{ (beat-1) % 4+1 }}</p>
             </div>
             <div style="text-align: center;">
-		    <p v-html="chordHTML"></p>
+                <p v-html="chordHTML"></p>
                 <p v-if="message_success" class="success">
                     {{ message_success }}
                 </p>
@@ -288,11 +297,11 @@
                 </p>
                 <p class="pt05">
                     enter chords into carp.
-		   enter the chord, followed by the arp pattern in parentheses. 
-		    for example, a Bb minor chord with up-down arpeggio would be <em>Bbmin(ud)</em>.
+                    enter the chord, followed by the arp pattern in parentheses.
+                    for example, a Bb minor chord with up-down arpeggio would be <em>Bbmin(ud)</em>.
                 </p>
                 <p class="pt05">
-		    press "start". it will play the corresponding chord and corresponding arp using sysex commands until "stop" is pressed. you can modify the parameteres you set in realtime.
+                    press "start". it will play the corresponding chord and corresponding arp using sysex commands until "stop" is pressed. you can modify the parameteres you set in realtime.
                 </p>
             </div>
             <br>
@@ -321,15 +330,6 @@
                                 <dt>dim</dt>
                                 <dd>diminished</dd>
                             </dl>
-                        </p>
-                        <p class="pt1">
-                            <strong>examples:</strong>
-                            <ul>
-                                <li>
-                                    <a v-bind:href="'/?load='+Math.floor(1000*Math.random())+'#eyJpIjoiQyh1ZCkgRW0odWQpIEYodWQpIEFtKHVkKSIsImIiOiIxMjAiLCJvIjoiNCIsImEiOiIyNyIsImMiOjR9='">four chord song
-                                    </a>
-                                </li>
-                            </ul>
                         </p>
                     </td>
                     <td width="50%" style=" vertical-align:top">
@@ -379,6 +379,13 @@
                     </td>
                 </tr>
             </table>
+            <div class="pt1" style="text-align: left;" class="video">
+                <p><strong>example</strong> (using chrome on android):</p>
+                <video width="640" height="360" controls>
+                    <source src="/static/example1.webm" type="video/webm">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
             <div class="pt1" style="text-align: right;">
                 <small>Made by <a href="https://github.com/schollz/carp">@schollz</a> under MIT.</small>
             </div>
@@ -502,19 +509,19 @@
             bpminterval: function() {
                 return 60 / this.bpm_current * 1000;
             },
-	    chordHTML: function() {
-		var chtml = "";
-		for (i = 0; i < this.chords.length; i++) {
-		    if (this.chords[i].name == this.chord_current.name) {
-			chtml += "<span class='current'>"
-		    }
-		    chtml += this.chords[i].name + " ";
-		    if (this.chords[i].name == this.chord_current.name) {
-			    chtml += "</span>"
-		    }
-		}
-		return chtml;
-	    },
+            chordHTML: function() {
+                var chtml = "";
+                for (i = 0; i < this.chords.length; i++) {
+                    if (this.chords[i].name == this.chord_current.name) {
+                        chtml += "<span class='current'>"
+                    }
+                    chtml += this.chords[i].name + " ";
+                    if (this.chords[i].name == this.chord_current.name) {
+                        chtml += "</span>"
+                    }
+                }
+                return chtml;
+            },
             chords: function() {
                 console.log(this.inputChords);
                 window.location.hash = btoa(JSON.stringify({ i: this.inputChords, b: this.bpm, o: this.midi_octave, a: this.arp_length, c: this.beats_per_chord }))
