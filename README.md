@@ -1,2 +1,6 @@
 # carp
-Korg NTS-1 / Minilogue / Prologue chord arpeggiator (carp) sequencer
+Korg NTS-1 chord arpeggiator (carp) sequencer.
+
+## Todo
+
+- [ ] Implement arpeggiator that works with any synth
