@@ -112,6 +112,12 @@
       color: #98FB98;
   }
 
+  .current {
+	color: #98FB98;
+	font-weight: 900;
+	font-size: 150%;
+  }
+
   .pt1 {
       padding-top: 1em;
   }
@@ -255,9 +261,10 @@
         <div class="mw30">
             <br>
             <div style="text-align: center;" v-if="beat">
-                <p>{{ beat }} {{chord_current}}</p>
+		    <p style="font-size:150%;">{{ (beat-1) % 4+1 }}</p>
             </div>
             <div style="text-align: center;">
+		    <p v-html="chordHTML"></p>
                 <p v-if="message_success" class="success">
                     {{ message_success }}
                 </p>
@@ -268,19 +275,24 @@
             <br>
             <div>
                 <p>
-                    carp is a sequencer for <em>chord arpeggios</em> on the korg nts-1. enter the chords you want with the arp you want inside parentheses. for example, a Bb minor chord with up-down arpeggio would be <em>Bbmin(ud)</em>.
+                    carp is a sequencer for <em>chord arpeggios</em> on the korg nts-1. it allows you to harness the arp features (chords / arp patterrns) using sysex commands from the browser.
                 </p>
                 <p class="pt1">
                     <strong>instructions:</strong>
                 </p>
                 <p class="pt05">
-                    first set the tempo. on device, hold "arp" and adjust "b". now, on carp set "bpm" to the corresponding tempo (or 2x that).
+                    first set the tempo on nts-1 device. hold "arp" and adjust "b" to the bpm. now, set "bpm" in this window to the corresponding tempo (or 2x that).
                 </p>
                 <p class="pt05">
                     set the nts-1 into hold mode by holding down "arp" until it starts blinking.
                 </p>
                 <p class="pt05">
-                    enter chords into carp and press "start". it will play the corresponding chord and corresponding arp using sysex commands until "stop" is pressed.
+                    enter chords into carp.
+		   enter the chord, followed by the arp pattern in parentheses. 
+		    for example, a Bb minor chord with up-down arpeggio would be <em>Bbmin(ud)</em>.
+                </p>
+                <p class="pt05">
+		    press "start". it will play the corresponding chord and corresponding arp using sysex commands until "stop" is pressed. you can modify the parameteres you set in realtime.
                 </p>
             </div>
             <br>
@@ -465,17 +477,13 @@
             },
             step: function(e) {
                 var dt = Date.now() - this.metronome_expected; // the drift (positive for overshooting)
-                console.log(dt);
                 if (dt > this.bpminterval) {
                     // something really bad happened. Maybe the browser (tab) was inactive?
                     // possibly special handling to avoid futile "catch up" run
                 }
                 this.beat++;
-                console.log("beep!");
                 var chordi = Math.floor((this.beat - 1) / this.beats_per_chord) % this.chords.length;
-                console.log(chordi);
                 if (this.chord_current.name != this.chords[chordi].name) {
-                    console.log("updating chord!")
                     this.chord_current = this.chords[chordi];
                     if (this.ntsout != null) {
                         // change note, play it for 1/2 beat
@@ -494,15 +502,25 @@
             bpminterval: function() {
                 return 60 / this.bpm_current * 1000;
             },
+	    chordHTML: function() {
+		var chtml = "";
+		for (i = 0; i < this.chords.length; i++) {
+		    if (this.chords[i].name == this.chord_current.name) {
+			chtml += "<span class='current'>"
+		    }
+		    chtml += this.chords[i].name + " ";
+		    if (this.chords[i].name == this.chord_current.name) {
+			    chtml += "</span>"
+		    }
+		}
+		return chtml;
+	    },
             chords: function() {
-                console.log("starting")
                 console.log(this.inputChords);
                 window.location.hash = btoa(JSON.stringify({ i: this.inputChords, b: this.bpm, o: this.midi_octave, a: this.arp_length, c: this.beats_per_chord }))
                 var chordNames = this.inputChords.split(" ");
                 chords = [];
-                this.message_success = "";
                 for (var i = 0; i < chordNames.length; i++) {
-                    console.log(chordNames[i]);
                     var foo = chordNames[i].split("(")
                     var chordName = foo[0];
                     if (chordName[0] == undefined) {
@@ -519,7 +537,6 @@
                         this.message_error = "Could not parse '" + chordName + "'.";
                         continue
                     }
-                    this.message_success += chordName + " ";
                     var notes_sysex = 0;
                     if (cParsed.quality == "Major") {
                         // major chord
