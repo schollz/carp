@@ -503,7 +503,7 @@
                 if (nextChord == 0) {
                     this.chordi = (this.chordi + 1) % this.chords.length;
                 }
-                if (this.chord_current.name != this.chords[this.chordi].name) {
+                if (this.chord_current.name != this.chords[this.chordi].name || this.chord_current.sysex_arp != this.chords[this.chordi].sysex_arp) {
                     this.chord_current = this.chords[this.chordi];
                     if (this.ntsout != null) {
                         // change note, play it for 1/2 beat
